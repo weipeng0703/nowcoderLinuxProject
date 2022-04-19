@@ -4,7 +4,7 @@
  * @Author: weipeng
  * @Date: 2022-04-17 16:53:34
  * @LastEditors: weipeng
- * @LastEditTime: 2022-04-17 17:04:21
+ * @LastEditTime: 2022-04-19 11:09:59
  */
 /*
     #include <pthread.h>
@@ -53,7 +53,6 @@ int main() {
     // 输出主线程和子线程的id
     printf("tid : %ld, main thread id : %ld\n", tid, pthread_self());
 
-    
     pthread_exit(NULL);
 
     return 0;
