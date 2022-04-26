@@ -1,4 +1,12 @@
 /*
+ * @Descripttion: 
+ * @version: 1.0
+ * @Author: weipeng
+ * @Date: 2022-04-25 21:43:53
+ * @LastEditors: weipeng
+ * @LastEditTime: 2022-04-26 16:28:31
+ */
+/*
     #include <arpa/inet.h>
     // p:点分十进制的IP字符串，n:表示network，网络字节序的整数
     int inet_pton(int af, const char *src, void *dst);
@@ -35,7 +43,7 @@ int main() {
     char ip[16] = "";
     const char * str =  inet_ntop(AF_INET, &num, ip, 16);
     printf("str : %s\n", str);
-    printf("ip : %s\n", str);
+    printf("ip  : %s\n", str);
     printf("%d\n", ip == str);
 
     return 0;
