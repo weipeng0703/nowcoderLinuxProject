@@ -4,7 +4,7 @@
  * @Author: weipeng
  * @Date: 2022-05-17 21:15:25
  * @LastEditors: weipeng
- * @LastEditTime: 2022-05-18 14:27:49
+ * @LastEditTime: 2022-05-18 20:06:35
  */
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
@@ -14,27 +14,22 @@
 #include <pthread.h>
 #include "locker.h"
 #include <semaphore.h>
+#include <stdio.h>
 
 template<typename T>
 class threadpool {
 public:
-    threadpool(int thread_number = 8, int max_requests = 10000) {
-        
-    }
+    threadpool(int thread_number = 8, int max_requests = 10000);
 
-    ~threadpool() {
-        
-    }
+    ~threadpool();
 
-    bool append(T* request) {
-        
-    }
+    bool append(T* request);
 private:
     // 线程的数量
     int m_thread_number;
 
     // 线程池数组，大小为m_thread_number
-    pthread * m_threads;
+    pthread_t * m_threads;
 
     // 请求队列中最多允许的，等待处理的请求的数量
     int m_max_requests;
@@ -72,14 +67,14 @@ threadpool<T>::threadpool(int thread_number, int max_requests) :
 
         // 创建thread_number个线程，并将其设为线程脱离
         for (int i = 0; i < thread_number; i++) {
-            print("create the %d-th thread\n", i);
+            printf("create the %dth thread\n", i);
 
-            if (pthread_create(m_thread + i, NULL, worker, this) != 0) {
+            if (pthread_create(m_threads + i, NULL, worker, this) != 0) {
                 delete [] m_threads;
                 throw std::exception();
             }
 
-            if (pthread_detach(m_thread[i])) {
+            if (pthread_detach(m_threads[i])) {
                 delete [] m_threads;
                 throw std::exception();
             }
@@ -95,14 +90,14 @@ threadpool<T>::~threadpool() {
 template<typename T>
 bool threadpool<T>::append(T * request) {
     m_queuelocker.lock();
-    if (m_workqueue.size() > n_max_requests) {
+    if (m_workqueue.size() > m_max_requests) {
         m_queuelocker.unlock();
         return false;
     }
 
     m_workqueue.push_back(request);
     m_queuelocker.unlock();
-    m_ququestat.post();
+    m_queuestat.post();
     return true;
 }
 

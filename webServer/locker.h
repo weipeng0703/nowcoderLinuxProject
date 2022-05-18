@@ -1,10 +1,10 @@
 /*
- * @Descripttion: 
+ * @Descripttion: 用于线程同步
  * @version: 1.0
  * @Author: weipeng
  * @Date: 2022-05-17 20:37:22
  * @LastEditors: weipeng
- * @LastEditTime: 2022-05-17 21:16:15
+ * @LastEditTime: 2022-05-18 21:37:55
  */
 #ifndef LOCKER_H
 #define LOCKER_H
