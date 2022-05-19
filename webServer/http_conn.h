@@ -4,7 +4,7 @@
  * @Author: weipeng
  * @Date: 2022-05-18 14:45:07
  * @LastEditors: weipeng
- * @LastEditTime: 2022-05-19 16:39:07
+ * @LastEditTime: 2022-05-19 19:56:54
  */
 
 #ifndef HTTPCONNECTION_H
@@ -112,6 +112,10 @@ private:
 
     char * m_host;  // 主机名
     bool m_linger;  // http请求是否要保持连接
+
+    int m_content_length;
+    int m_read_idx;
+    int m_checked_idx;
 
 
     CHECK_STATE m_check_state;  // 主状态机当前所处的状态

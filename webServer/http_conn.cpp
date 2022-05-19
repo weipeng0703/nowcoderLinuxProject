@@ -4,7 +4,7 @@
  * @Author: weipeng
  * @Date: 2022-05-18 14:47:05
  * @LastEditors: weipeng
- * @LastEditTime: 2022-05-19 16:57:57
+ * @LastEditTime: 2022-05-19 19:59:37
  */
 
 #include "http_conn.h"
@@ -93,6 +93,10 @@ void http_conn::init() {
     m_url = 0;
     m_version = 0;
     m_linger = false;
+
+    m_content_length = 0;
+    m_read_idx = 0;
+    m_checked_idx = 0;
 
     bzero(m_read_buf, READ_BUFFER_SIZE);
 }
@@ -216,11 +220,46 @@ http_conn::HTTP_CODE http_conn::parse_request_line(char* text) {
 
 // 解析请求头
 http_conn::HTTP_CODE http_conn::parse_headers(char* text) {
-
+    // 遇到空行，表示头部字段解析完毕
+    if (text[0] == '\0') {
+        // 如果HTTP请求有消息体，还需要读取m_content_length字节的消息体
+        // 状态机转移到CKECK_STATE_CONTENT
+        if (m_content_length != 0) {
+            m_check_state = CHECK_STATE_CONTENT;
+            return NO_REQUEST;
+        }
+        // 否则说明我们已经得到了一个完整的HTTP请求
+        return GET_REQUEST;
+    } else if ((strncasecmp(text, "Connection:", 11))== 0) {
+        // 处理connection的头部字段
+        text += 11;
+        text += strspn(text, "\t");
+        if (strcasecmp(text, "keep-alive") == 0) {
+            m_linger = true;
+        }
+    } else if ((strncasecmp(text, "Content-Length:", 15))== 0) {
+        // 处理Content-Length的头部字段
+        text += 15;
+        text += strspn(text, "\t");
+        m_content_length = atol(text);
+    } else if ((strncasecmp(text, "Host:", 5))== 0) {
+        // 处理Host的头部字段
+        text += 55;
+        text += strspn(text, "\t");
+        m_host = text;
+    } else {
+        std::cout << "UNKNOWN HEADER: " << text << std::endl;
+    }
+    
+    
 }
-// 解析请求体
+// 我们没有真正解析HTTP的请求体，只是判断它是否被完整读入
 http_conn::HTTP_CODE http_conn::parse_content(char* text) {
-
+    if (m_read_idx >= (m_content_length + m_checked_idx)) {
+        text[m_content_length] = '\0';
+        return GET_REQUEST;
+    }
+    return NO_REQUEST;
 }
 // 解析具体的某行，判断依据是 \r\n
 http_conn::LINE_STATUS http_conn::parse_line() {
@@ -252,7 +291,7 @@ http_conn::LINE_STATUS http_conn::parse_line() {
 }
 
 http_conn::HTTP_CODE http_conn::do_request() {
-
+    // /root/nowcoderLinuxProject/webServer/resources
 }
 
 // 由线程池中的工作线程调用,这是处理http请求的入口函数
